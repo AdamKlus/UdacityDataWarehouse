@@ -8,7 +8,7 @@ config.read('dwh.cfg')
 # DROP TABLES
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
-staging_songs_table_drop = "DROP TABLE IF EXISTS songplays;"
+staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
 songplay_table_drop = "DROP TABLE IF EXISTS songplays;"
 user_table_drop = "DROP TABLE IF EXISTS users;"
 song_table_drop = "DROP TABLE IF EXISTS songs;"
@@ -57,7 +57,7 @@ CREATE TABLE staging_songs (
 
 songplay_table_create = ("""
 CREATE TABLE songplays (
-	songplay_id IDENTITY(0,1),
+	songplay_id int4 IDENTITY(0,1),
 	start_time timestamp NOT NULL,
 	user_id int4 NOT NULL,
 	level varchar(256),
@@ -65,7 +65,7 @@ CREATE TABLE songplays (
 	artist_id varchar(256),
 	session_id int4,
 	location varchar(256),
-	user_agent varchar(256),
+	user_agent varchar(256)
 );
 """)
 
@@ -75,7 +75,7 @@ CREATE TABLE users (
 	first_name varchar(256),
 	last_name varchar(256),
 	gender varchar(256),
-	level varchar(256),
+	level varchar(256)
 );
 """)
 
@@ -85,7 +85,7 @@ CREATE TABLE songs (
 	title varchar(256),
 	artistid varchar(256),
 	year int4,
-	duration numeric(18,0),
+	duration numeric(18,0)
 );
 """)
 
@@ -107,7 +107,7 @@ CREATE TABLE time (
 	week int4,
 	month varchar(256),
 	year int4,
-	weekday varchar(256),
+	weekday varchar(256)
 );
 """)
 
@@ -116,14 +116,16 @@ CREATE TABLE time (
 staging_events_copy = ("""
 copy staging_events from '{}' 
 credentials 'aws_iam_role={}'
-region 'us-east-1';
-""").format(config.get(("S3", "LOG_DATA")), config.get(("IAM_ROLE", "ARN")))
+region 'us-west-2'
+json '{}';
+""").format(config.get("S3", "LOG_DATA"), config.get("IAM_ROLE", "ARN"), config.get("S3", "LOG_JSONPATH"))
 
 staging_songs_copy = ("""
 copy staging_songs from '{}' 
 credentials 'aws_iam_role={}'
-region 'us-east-1';
-""").format(config.get(("S3", "SONG_DATA")), config.get(("IAM_ROLE", "ARN")))
+region 'us-west-2'
+json 'auto';
+""").format(config.get("S3", "SONG_DATA"), config.get("IAM_ROLE", "ARN"))
 
 # FINAL TABLES
 
