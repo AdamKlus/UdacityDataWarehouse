@@ -33,7 +33,7 @@ Dimension Tables
 
 `etl.py` - extract, transform and load processes
 
-`dwh.cfg` - credentials and setting for AWS
+`dwh.cfg` - credentials and setting for AWS (not uploaded to git hub)
 
 ## How to run the python scripts
 
