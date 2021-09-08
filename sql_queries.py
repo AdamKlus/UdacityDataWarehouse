@@ -65,7 +65,12 @@ CREATE TABLE songplays (
 	artist_id text,
 	session_id int,
 	location text,
-	user_agent text
+	user_agent text,
+	PRIMARY KEY(songplay_id),
+	FOREIGN KEY(start_time) references time(start_time),
+	FOREIGN KEY(user_id) references users(user_id),
+	FOREIGN KEY(song_id) references songs(song_id),
+	FOREIGN KEY(artist_id) references artists(artist_id)
 );
 """)
 
@@ -75,7 +80,8 @@ CREATE TABLE users (
 	first_name text,
 	last_name text,
 	gender text,
-	level text
+	level text,
+	PRIMARY KEY(user_id)
 );
 """)
 
@@ -85,7 +91,8 @@ CREATE TABLE songs (
 	title text,
 	artistid text,
 	year int,
-	duration numeric(10,5)
+	duration numeric(10,5),
+	PRIMARY KEY(song_id)
 );
 """)
 
@@ -95,7 +102,8 @@ CREATE TABLE artists (
 	name text,
 	location text,
 	lattitude numeric(8,5),
-	longitude numeric(8,5)
+	longitude numeric(8,5),
+	PRIMARY KEY(artist_id)
 );
 """)
 
@@ -107,7 +115,8 @@ CREATE TABLE time (
 	week int,
 	month text,
 	year int,
-	weekday text
+	weekday text,
+	PRIMARY KEY(start_time)
 );
 """)
 
@@ -177,7 +186,7 @@ INSERT INTO time(start_time, hour, day, week, month, year, weekday)
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
