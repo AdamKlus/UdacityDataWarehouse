@@ -25,12 +25,12 @@ CREATE TABLE staging_events (
 	gender text,
 	iteminsession int,
 	lastname text,
-	length numeric(18,0),
+	length numeric(10,5),
 	level text,
 	location text,
 	method text,
 	page text,
-	registration numeric(18,0),
+	registration bigint,
 	sessionid int,
 	song text,
 	status int,
@@ -44,20 +44,20 @@ staging_songs_table_create = ("""
 CREATE TABLE staging_songs (
 	num_songs int,
 	artist_id text,
-	artist_latitude numeric(18,0),
-	artist_longitude numeric(18,0),
+	artist_latitude numeric(8,5),
+	artist_longitude numeric(8,5),
 	artist_location text,
 	artist_name text,
 	song_id text,
 	title text,
-	duration numeric(18,0),
+	duration numeric(10,5),
 	year int
 );
 """)
 
 songplay_table_create = ("""
 CREATE TABLE songplays (
-	songplay_id int IDENTITY,
+	songplay_id int IDENTITY(0,1),
 	start_time timestamp NOT NULL,
 	user_id int NOT NULL,
 	level text,
@@ -116,14 +116,12 @@ CREATE TABLE time (
 staging_events_copy = ("""
 copy staging_events from '{}' 
 credentials 'aws_iam_role={}'
-region 'us-west-2'
 json '{}';
 """).format(config.get("S3", "LOG_DATA"), config.get("IAM_ROLE", "ARN"), config.get("S3", "LOG_JSONPATH"))
 
 staging_songs_copy = ("""
 copy staging_songs from '{}' 
 credentials 'aws_iam_role={}'
-region 'us-west-2'
 json 'auto' truncatecolumns;
 """).format(config.get("S3", "SONG_DATA"), config.get("IAM_ROLE", "ARN"))
 
