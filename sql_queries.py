@@ -19,81 +19,81 @@ time_table_drop = "DROP TABLE IF EXISTS time;"
 
 staging_events_table_create= ("""
 CREATE TABLE staging_events (
-	artist varchar(256),
-	auth varchar(256),
-	firstname varchar(256),
-	gender varchar(256),
-	iteminsession int4,
-	lastname varchar(256),
+	artist text,
+	auth text,
+	firstname text,
+	gender text,
+	iteminsession int,
+	lastname text,
 	length numeric(18,0),
-	level varchar(256),
-	location varchar(256),
-	method varchar(256),
-	page varchar(256),
+	level text,
+	location text,
+	method text,
+	page text,
 	registration numeric(18,0),
-	sessionid int4,
-	song varchar(256),
-	status int4,
-	ts int8,
-	useragent varchar(256),
-	userid int4
+	sessionid int,
+	song text,
+	status int,
+	ts bigint,
+	useragent text,
+	userid int
 );
 """)
 
 staging_songs_table_create = ("""
 CREATE TABLE staging_songs (
-	num_songs int4,
-	artist_id varchar(256),
+	num_songs int,
+	artist_id text,
 	artist_latitude numeric(18,0),
 	artist_longitude numeric(18,0),
-	artist_location varchar(256),
-	artist_name varchar(256),
-	song_id varchar(256),
-	title varchar(256),
+	artist_location text,
+	artist_name text,
+	song_id text,
+	title text,
 	duration numeric(18,0),
-	year int4
+	year int
 );
 """)
 
 songplay_table_create = ("""
 CREATE TABLE songplays (
-	songplay_id int4 IDENTITY(0,1),
+	songplay_id int IDENTITY,
 	start_time timestamp NOT NULL,
-	user_id int4 NOT NULL,
-	level varchar(256),
-	song_id varchar(256),
-	artist_id varchar(256),
-	session_id int4,
-	location varchar(256),
-	user_agent varchar(256)
+	user_id int NOT NULL,
+	level text,
+	song_id text,
+	artist_id text,
+	session_id int,
+	location text,
+	user_agent text
 );
 """)
 
 user_table_create = ("""
 CREATE TABLE users (
-	user_id int4 NOT NULL,
-	first_name varchar(256),
-	last_name varchar(256),
-	gender varchar(256),
-	level varchar(256)
+	user_id int NOT NULL,
+	first_name text,
+	last_name text,
+	gender text,
+	level text
 );
 """)
 
 song_table_create = ("""
 CREATE TABLE songs (
-	song_id varchar(256) NOT NULL,
-	title varchar(256),
-	artistid varchar(256),
-	year int4,
+	song_id text NOT NULL,
+	title text,
+	artistid text,
+	year int,
 	duration numeric(18,0)
 );
 """)
 
 artist_table_create = ("""
 CREATE TABLE artists (
-	artist_id varchar(256) NOT NULL,
-	name varchar(256),
-	location varchar(256),
+	artist_id text NOT NULL,
+	name text,
+	location text,
 	lattitude numeric(18,0),
 	longitude numeric(18,0)
 );
@@ -102,12 +102,12 @@ CREATE TABLE artists (
 time_table_create = ("""
 CREATE TABLE time (
 	start_time timestamp NOT NULL,
-	hour int4,
-	day int4,
-	week int4,
-	month varchar(256),
-	year int4,
-	weekday varchar(256)
+	hour int,
+	day int,
+	week int,
+	month text,
+	year int,
+	weekday text
 );
 """)
 
@@ -124,12 +124,13 @@ staging_songs_copy = ("""
 copy staging_songs from '{}' 
 credentials 'aws_iam_role={}'
 region 'us-west-2'
-json 'auto';
+json 'auto' truncatecolumns;
 """).format(config.get("S3", "SONG_DATA"), config.get("IAM_ROLE", "ARN"))
 
 # FINAL TABLES
 
 songplay_table_insert = ("""
+	INSERT INTO songplays(start_time,user_id,level,song_id,artist_id,session_id,location,user_agent)
     SELECT
         events.start_time, 
         events.userid, 
@@ -151,22 +152,26 @@ songplay_table_insert = ("""
 """)
 
 user_table_insert = ("""
+	INSERT INTO users(user_id,first_name,last_name,gender,level)
     SELECT distinct userid, firstname, lastname, gender, level
     FROM staging_events
     WHERE page='NextSong'
 """)
 
 song_table_insert = ("""
+	INSERT INTO songs(song_id,title,artistid,year,duration)
     SELECT distinct song_id, title, artist_id, year, duration
     FROM staging_songs
 """)
 
 artist_table_insert = ("""
+	INSERT INTO artists(artist_id,name,location,lattitude,longitude)
     SELECT distinct artist_id, artist_name, artist_location, artist_latitude, artist_longitude
     FROM staging_songs
 """)
 
 time_table_insert = ("""
+	INSERT INTO time(start_time, hour, day, week, month, year, weekday)
     SELECT start_time, extract(hour from start_time), extract(day from start_time), extract(week from start_time), 
         extract(month from start_time), extract(year from start_time), extract(dayofweek from start_time)
     FROM songplays
