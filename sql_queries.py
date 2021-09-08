@@ -85,7 +85,7 @@ CREATE TABLE songs (
 	title text,
 	artistid text,
 	year int,
-	duration numeric(18,0)
+	duration numeric(10,5)
 );
 """)
 
@@ -94,8 +94,8 @@ CREATE TABLE artists (
 	artist_id text NOT NULL,
 	name text,
 	location text,
-	lattitude numeric(18,0),
-	longitude numeric(18,0)
+	lattitude numeric(8,5),
+	longitude numeric(8,5)
 );
 """)
 
